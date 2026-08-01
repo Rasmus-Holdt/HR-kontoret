@@ -1,0 +1,768 @@
+/* HR-Kontoret — stylesheet
+   Mobile-first. Ingen webfonts, ingen frameworks, ingen JavaScript.
+   Ét stylesheet, nul eksterne requests. */
+
+/* Kølige neutrale flader + marineblå + varm okker.
+   Beige og okker lå for tæt på hinanden og gjorde siden mudret —
+   mod køligt grå-blåt springer okkeren frem i stedet. */
+:root {
+  --navy: #1b2a41;
+  --navy-dark: #131d2d;
+  --navy-soft: #2c3f5c;
+  --ochre: #c2712f;
+  --ochre-dark: #a25a24;
+  --bg: #f7f9fc;
+  --bg-alt: #e8eef6;
+  --ink: #16202e;
+  --ink-soft: #4d5a6b;
+  --line: #d3dce8;
+  --white: #fff;
+
+  --wrap: 1080px;
+  --radius: 4px;
+  --shadow: 0 1px 3px rgba(27, 42, 65, .08), 0 8px 24px rgba(27, 42, 65, .06);
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+/* ---------- Overgange ----------
+   Bløde skift mellem sider og sektioner. Alt er ren CSS og degraderer
+   pænt i browsere der ikke understøtter det. */
+
+/* Sideskift: krydstoning i stedet for et hårdt hop */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: fade-out .18s ease both; }
+::view-transition-new(root) { animation: fade-in .28s ease both; }
+
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes fade-in { from { opacity: 0; } }
+
+/* Sektioner glider blidt på plads, når de ruller i syne.
+   Bevidst KUN transform — aldrig opacity. Så kan indhold aldrig
+   ende usynligt i print, i browsere uden understøttelse eller
+   hvis animationen af en eller anden grund ikke kører. */
+@keyframes rise-in {
+  from { transform: translateY(26px); }
+  to   { transform: none; }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section > .wrap {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, ::view-transition-old(root), ::view-transition-new(root) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--navy); text-underline-offset: 3px; transition: color .15s ease; }
+a:hover { color: var(--ochre-dark); }
+
+:focus-visible {
+  outline: 3px solid var(--ochre);
+  outline-offset: 2px;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+  color: var(--navy);
+  margin: 0 0 .6em;
+  letter-spacing: -.015em;
+}
+
+h1 { font-size: clamp(1.9rem, 5.2vw, 3rem); }
+h2 { font-size: clamp(1.45rem, 3.4vw, 2.1rem); }
+h3 { font-size: 1.15rem; }
+
+p { margin: 0 0 1.1em; }
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.section { padding-block: clamp(2.75rem, 5.5vw, 4.5rem); }
+.section--alt { background: var(--bg-alt); }
+
+/* Mørkeblå sektioner bærer samme rudenet som hero — struktur og orden,
+   hvilket er præcis det HR-Kontoret sælger. Ren CSS, ingen billedfil. */
+.section--navy {
+  background: var(--navy);
+  color: #e8ecf2;
+  position: relative;
+  overflow: hidden;
+}
+.section--navy::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 46px 46px;
+  pointer-events: none;
+}
+.section--navy > .wrap { position: relative; }
+.section--navy h2, .section--navy h3 { color: var(--white); }
+.section--navy a { color: #fff; }
+
+.lead {
+  font-size: clamp(1.1rem, 2.2vw, 1.3rem);
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+.section--navy .lead { color: #c9d3e0; }
+
+.eyebrow {
+  display: block;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ochre-dark);
+  margin-bottom: .75rem;
+}
+.section--navy .eyebrow { color: #e0a367; }
+
+/* ---------- Skip link ---------- */
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--navy);
+  color: #fff;
+  padding: .75rem 1rem;
+  z-index: 100;
+}
+.skip:focus { left: 0; }
+
+/* ---------- Header ---------- */
+
+.site-header {
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  min-height: 68px;
+}
+
+.logo {
+  font-size: clamp(1.2rem, 4.4vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -.025em;
+  color: var(--navy);
+  text-decoration: none;
+  white-space: nowrap;
+  /* Mindst 44 px klikflade, også på telefon */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.logo span { font-weight: 400; color: var(--navy-soft); }
+
+.nav-toggle { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--navy);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .5rem .8rem;
+  cursor: pointer;
+  background: var(--white);
+}
+
+.nav-btn::before {
+  content: "";
+  flex: none;
+  width: 18px; height: 2px;
+  background: currentColor;
+  box-shadow: 0 5px 0 currentColor, 0 -5px 0 currentColor;
+}
+
+/* På de smalleste telefoner viger ordet "Menu" for ikonet,
+   så logoet har plads. Skærmlæsere læser stadig teksten. */
+@media (max-width: 419px) {
+  .nav-btn { font-size: 0; gap: 0; padding: .6rem .7rem; }
+}
+
+.site-nav {
+  display: none;
+  width: 100%;
+  padding-bottom: 1rem;
+}
+
+.nav-toggle:checked ~ .site-nav { display: block; }
+.nav-toggle:focus-visible ~ .nav-btn { outline: 3px solid var(--ochre); outline-offset: 2px; }
+
+.site-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+
+.site-nav a {
+  display: block;
+  padding: .6rem .25rem;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--navy);
+  border-bottom: 1px solid var(--line);
+}
+.site-nav a[aria-current="page"] { color: var(--ochre-dark); }
+
+/* Ring-knap er synlig på ALLE skærme — telefonen er den primære konvertering */
+.header-cta {
+  display: inline-flex;
+  align-items: center;
+  background: var(--navy);
+  color: #fff;
+  padding: .55rem .9rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: .95rem;
+  min-height: 44px;
+  margin-left: auto;
+  margin-right: .5rem;
+  order: 2;
+}
+.header-cta:hover { background: var(--ochre-dark); color: #fff; }
+
+.hide-sm { display: none; }
+
+@media (min-width: 800px) {
+  .nav-btn { display: none; }
+  .site-nav { display: block; width: auto; padding: 0; }
+  .site-nav ul { flex-direction: row; gap: 1.6rem; align-items: center; }
+  .site-nav a { border: 0; padding: .25rem 0; }
+  .site-nav a:hover { color: var(--ochre-dark); }
+  .site-nav a[aria-current="page"] { border-bottom: 2px solid var(--ochre); }
+  .header-cta { order: 0; margin-left: 0; margin-right: 0; }
+  .hide-sm { display: inline; }
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  background: var(--navy);
+  color: #e8ecf2;
+  padding-block: clamp(3rem, 8vw, 6rem);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Rudenet-tekstur: signalerer struktur og orden. Ren CSS = ingen ekstra requests. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 46px 46px;
+  pointer-events: none;
+}
+
+.hero .wrap { position: relative; }
+
+.hero h1 { color: var(--white); max-width: 17ch; }
+.hero p { color: #c9d3e0; max-width: 56ch; font-size: clamp(1.1rem, 2.2vw, 1.3rem); }
+
+.hero-price {
+  display: inline-block;
+  border-left: 3px solid var(--ochre);
+  padding-left: .9rem;
+  margin: 0 0 1.75rem;
+  color: #e8ecf2;
+  font-size: 1rem;
+}
+
+/* ---------- Knapper ---------- */
+
+.btns { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .85rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  text-decoration: none;
+  border: 2px solid transparent;
+  min-height: 48px;
+  transition: background .15s ease, color .15s ease;
+}
+
+.btn--primary { background: var(--ochre); color: #fff; }
+.btn--primary:hover { background: var(--ochre-dark); color: #fff; }
+
+/* --outline bruges på mørk baggrund, --outline-dark på lys */
+.btn--outline { border-color: currentColor; color: inherit; background: transparent; }
+.btn--outline:hover { background: rgba(255,255,255,.12); color: inherit; }
+
+.btn--outline-dark { border-color: var(--navy); color: var(--navy); background: transparent; }
+.btn--outline-dark:hover { background: var(--navy); color: #fff; }
+
+.btn--dark { background: var(--navy); color: #fff; }
+.btn--dark:hover { background: var(--navy-dark); color: #fff; }
+
+/* ---------- Grid & kort ---------- */
+
+.grid { display: grid; gap: 1.25rem; }
+.grid--3 { grid-template-columns: 1fr; }
+.grid--2 { grid-template-columns: 1fr; }
+
+@media (min-width: 700px) {
+  .grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .grid--3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 980px) {
+  .grid--3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.card h3 { margin-bottom: .5rem; }
+.card p:last-child { margin-bottom: 0; }
+
+/* Kortene i en række er lige høje, og prisblokken skubbes ned i bunden
+   med margin-top:auto — så flugter alle priser vandret, uanset hvor lang
+   beskrivelsen er. */
+.card--service {
+  border-top: 3px solid var(--ochre);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@media (hover: hover) {
+  .card--service:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+}
+
+/* ---------- Trin ---------- */
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.5rem; counter-reset: step; }
+@media (min-width: 800px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+
+.steps li { counter-increment: step; padding-top: 3.2rem; position: relative; }
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  top: 0; left: 0;
+  width: 2.4rem; height: 2.4rem;
+  display: grid; place-items: center;
+  background: var(--ochre);
+  color: #fff;
+  font-weight: 800;
+  border-radius: 50%;
+}
+.steps h3 { margin-bottom: .35rem; }
+
+/* ---------- Tjekliste ---------- */
+
+.check { list-style: none; margin: 0 0 1.5rem; padding: 0; }
+.check li {
+  position: relative;
+  padding-left: 1.9rem;
+  margin-bottom: .7rem;
+  max-width: 62ch;
+}
+.check li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: .48em;
+  width: .7rem; height: .38rem;
+  border-left: 2.5px solid var(--ochre);
+  border-bottom: 2.5px solid var(--ochre);
+  transform: rotate(-45deg);
+}
+
+/* ---------- Abonnementspakker ---------- */
+
+.plans {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+@media (min-width: 980px) { .plans { grid-template-columns: repeat(3, 1fr); } }
+
+.plan {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.5rem, 3.5vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+@media (hover: hover) {
+  .plan:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 2px 6px rgba(27,42,65,.1), 0 14px 34px rgba(27,42,65,.12);
+    border-color: var(--ochre);
+  }
+  .plan--featured:hover { border-color: var(--ochre); }
+}
+
+.plan--featured {
+  border: 2px solid var(--navy);
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.plan--featured::before {
+  content: "Mest valgt";
+  position: absolute;
+  top: -.85rem; left: clamp(1.5rem, 3.5vw, 2rem);
+  background: var(--ochre);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .25rem .7rem;
+  border-radius: 2px;
+}
+
+.plan h3 { font-size: 1.35rem; margin-bottom: .15rem; }
+
+.plan .plan-for {
+  font-size: .95rem;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+}
+
+.plan .price {
+  font-size: clamp(1.7rem, 4vw, 2.1rem);
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+.plan .price small { display: block; font-size: .9rem; font-weight: 400; color: var(--ink-soft); margin-top: .35rem; }
+
+.plan .inherits {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--ochre-dark);
+  margin-bottom: .75rem;
+}
+
+.plan .check { margin-bottom: 1.5rem; }
+.plan .check li { font-size: .98rem; margin-bottom: .5rem; }
+
+.plan .btn { margin-top: auto; width: 100%; }
+
+/* ---------- Prisliste for enkeltydelser ---------- */
+
+.card--service .pris {
+  display: block;
+  margin-top: auto;
+  padding-top: .85rem;
+  border-top: 1px solid var(--line);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--navy);
+}
+/* Luft mellem beskrivelse og prislinje, også når kortet er lavt */
+.card--service p:last-of-type { margin-bottom: 1.25rem; }
+
+.card--service .pris-note {
+  display: block;
+  margin-top: .25rem;
+  font-size: .78rem;
+  line-height: 1.45;
+  color: #6b7787;
+  /* Plads til to linjer, så prislinjerne flugter selv når noten er kort */
+  min-height: calc(2 * 1.45em);
+}
+
+.moms { font-size: .9rem; color: var(--ink-soft); }
+
+/* ---------- Sådan fungerer abonnementet ---------- */
+
+.how {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 2rem;
+}
+@media (min-width: 800px) { .how { grid-template-columns: repeat(2, 1fr); gap: 2rem 3rem; } }
+
+.how > div { max-width: 56ch; }
+.how h3 { font-size: 1.1rem; margin-bottom: .35rem; }
+.how p { margin-bottom: 0; }
+.section--navy .how h3 { color: #fff; }
+.section--navy .how p { color: #c9d3e0; }
+
+/* ---------- Om-siden: løbende tekst ---------- */
+
+.prose { max-width: 64ch; }
+.prose p { font-size: 1.0625rem; }
+.prose p:first-of-type {
+  font-size: clamp(1.1rem, 2.2vw, 1.25rem);
+  color: var(--ink-soft);
+}
+
+/* ---------- Kontakt ----------
+   To spalter: oplysninger til venstre, formular til højre. */
+
+.contact-split {
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .contact-split { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3.5rem; }
+}
+
+.info-block + .info-block { margin-top: 2rem; }
+.info-block h3 {
+  font-size: .8rem;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: .5rem;
+}
+.info-block .value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: none;
+  display: block;
+  overflow-wrap: anywhere;
+}
+/* Links skal være til at ramme med en tommelfinger */
+a.value { display: flex; align-items: center; min-height: 44px; }
+a.value:hover { color: var(--ochre-dark); }
+.info-block .value--tel { font-size: clamp(1.6rem, 4vw, 2.1rem); letter-spacing: -.02em; }
+.info-block p { margin: .35rem 0 0; color: var(--ink-soft); font-size: .95rem; }
+
+.call-out { text-align: center; max-width: 46rem; margin-inline: auto; }
+
+.call-out .tel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-size: clamp(2.3rem, 8vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -.035em;
+  line-height: 1.1;
+  color: var(--navy);
+  text-decoration: none;
+  margin: .25rem 0 1.5rem;
+}
+.call-out .tel:hover { color: var(--ochre-dark); }
+
+.call-out .btns { justify-content: center; }
+
+/* Åbningstider */
+.hours { list-style: none; margin: 0; padding: 0; max-width: 26rem; }
+.hours li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.hours li:last-child { border-bottom: 0; }
+.hours span:last-child { font-weight: 700; color: var(--navy); white-space: nowrap; }
+
+.section--navy .hours li { border-bottom-color: rgba(255,255,255,.16); }
+.section--navy .hours span:last-child { color: #fff; }
+.section--navy .hours span:first-child { color: #c9d3e0; }
+
+/* ---------- Kontaktformular ---------- */
+
+.form-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--ochre);
+  border-radius: var(--radius);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  box-shadow: var(--shadow);
+}
+
+.field { margin-bottom: 1.25rem; }
+
+.field label {
+  display: block;
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--navy);
+  margin-bottom: .4rem;
+}
+.field .valgfri { font-weight: 400; color: var(--ink-soft); }
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .75rem .85rem;
+  min-height: 48px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.field textarea { min-height: 130px; resize: vertical; }
+
+.field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231b2a41' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .9rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--ochre);
+  box-shadow: 0 0 0 3px rgba(201,123,60,.18);
+  outline: none;
+  background: var(--white);
+}
+
+.form-row { display: grid; gap: 0 1.25rem; grid-template-columns: 1fr; }
+@media (min-width: 620px) { .form-row { grid-template-columns: 1fr 1fr; } }
+
+.form-note { font-size: .9rem; color: var(--ink-soft); margin: 1rem 0 0; }
+
+/* Honeypot mod spam-bots — skjult for mennesker */
+.hp { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
+
+/* ---------- Placeholder-markering (fjernes når indhold er på plads) ---------- */
+
+.ph {
+  background: #fff2cc;
+  border-bottom: 1px dashed #d4a017;
+  padding: 0 .2em;
+  color: #6b5000;
+  font-style: normal;
+}
+.section--navy .ph, .hero .ph { background: rgba(255,220,120,.22); color: #ffe6ac; border-bottom-color: rgba(255,220,120,.5); }
+
+/* ---------- Spørgsmål og svar ----------
+   Bygget på <details>/<summary> — virker uden JavaScript. */
+
+.faq { max-width: 46rem; }
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+}
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 1.15rem 2.5rem 1.15rem 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--navy);
+  position: relative;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+.faq summary::-webkit-details-marker { display: none; }
+
+.faq summary::after {
+  content: "";
+  position: absolute;
+  right: .5rem;
+  width: 11px; height: 11px;
+  border-right: 2.5px solid var(--ochre);
+  border-bottom: 2.5px solid var(--ochre);
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform .2s ease;
+}
+.faq details[open] summary::after { transform: rotate(-135deg) translateY(-3px); }
+
+.faq summary:hover { color: var(--ochre-dark); }
+
+.faq details > p {
+  margin: 0 0 1.25rem;
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  background: var(--navy-dark);
+  color: #a8b4c6;
+  padding-block: 2.5rem;
+  font-size: .95rem;
+}
+.site-footer a { color: #dce3ec; }
+.site-footer .grid { gap: 1.75rem; }
+.site-footer h3 { color: #fff; font-size: 1rem; margin-bottom: .5rem; }
+.site-footer ul { list-style: none; margin: 0; padding: 0; }
+.site-footer li { margin-bottom: .35rem; }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.12);
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  font-size: .875rem;
+}

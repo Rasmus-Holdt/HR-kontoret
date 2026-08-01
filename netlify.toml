@@ -1,0 +1,38 @@
+[build]
+  publish = "."
+
+# Pæne URL'er: /ydelser i stedet for /ydelser.html
+[[redirects]]
+  from = "/ydelser"
+  to = "/ydelser.html"
+  status = 301
+
+[[redirects]]
+  from = "/om"
+  to = "/om.html"
+  status = 301
+
+[[redirects]]
+  from = "/kontakt"
+  to = "/kontakt.html"
+  status = 301
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), camera=(), microphone=(), interest-cohort=()"
+
+# Assets har evighedscache — skift filnavn hvis en fil ændres
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML må gerne caches kort, men skal genvalideres
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
