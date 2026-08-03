@@ -26,11 +26,9 @@ Dobbeltklik på `index.html`. Alle interne stier er relative, så siden virker d
 
 På plads: Michaels baggrund, uddannelse og certificeringer, de tre abonnementer (Basis / Plus / Partner) og fra-priser på alle ni enkeltydelser.
 
-Mangler stadig:
+CVR-nummer (46669320) og Michaels baggrundstekst er på plads.
 
-- CVR-nummer (virksomheden er ikke oprettet endnu)
-- Mailadresse (oprettes sammen med domænet)
-- Valgfrit: 2-3 sætninger om hvorfor han startede virksomheden
+**Der mangler kun én ting: mailadressen.** Den oprettes sammen med domænet. Indtil da står `kontakt@hr-kontoret.com` som gul placeholder fire steder — find dem med `grep -n 'class="ph"' *.html`.
 
 **Prisforklaringerne under fra-priserne** (`.pris-note`) er formuleret af mig ud fra hvad der normalt driver omfanget i den slags opgaver. Michael bør læse dem igennem og rette, hvis noget ikke passer med hans måde at prissætte på.
 
