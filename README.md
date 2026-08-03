@@ -110,9 +110,30 @@ Efter første deploy: gå ind i Netlify → Forms → Form notifications og sæt
 
 Skal sitet hostes et andet sted, skal formularen laves om — enten til Formspree (indsæt deres URL i `action`) eller til en `mailto:`-formular.
 
-## Hosting
+## Hosting: One.com + Netlify
 
-`netlify.toml` er klar til Netlify — træk mappen ind, eller forbind repoet. Virker også som-den-er på GitHub Pages, Cloudflare Pages eller almindelig webhotel-FTP (`netlify.toml` ignoreres bare der; så mister man kun de pæne URL'er og cache-headers).
+Domæne og mail ligger hos **One.com**. Selve siden ligger på **Netlify** (gratis, CDN, automatisk HTTPS). `netlify.toml` er klar — forbind repoet, eller træk mappen ind.
+
+### ⚠️ Peg IKKE navneserverne over på Netlify
+
+Netlify foreslår selv, at man flytter DNS'en til dem. **Gør det ikke her.** Mailen ligger hos One.com, og flytter du navneserverne, forsvinder MX-recordene — så holder mailen op med at virke, uden at der kommer en fejl nogen steder. Det er den slags, man opdager en uge senere, når en kunde siger, at de aldrig fik svar.
+
+Behold DNS'en hos One.com, og tilføj i stedet disse to records:
+
+| Type | Navn | Værdi |
+|---|---|---|
+| A | `@` | `75.2.60.5` (Netlifys load balancer) |
+| CNAME | `www` | `<sitenavn>.netlify.app` |
+
+MX-recordene til One.com rører du ikke. Netlify slår selv HTTPS til, når DNS'en er slået igennem — det tager typisk under en time.
+
+Tjek den præcise A-record i Netlifys panel under Domain settings, før du opretter den — den kan ændre sig.
+
+### Efter deploy
+
+1. **Netlify → Forms → Form notifications:** sæt Michaels mailadresse på. Uden det lander beskederne kun i dashboardet, hvor ingen kigger.
+2. Send en testbesked gennem formularen og bekræft, at den kommer frem.
+3. Send `sitemap.xml` ind i Google Search Console.
 
 ## Tilgængelighed
 
